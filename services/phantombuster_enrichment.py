@@ -23,12 +23,16 @@ class PhantomBusterEnrichmentService:
         self.timeout = 30
         
         # PhantomBuster Agent IDs for different platforms
+        # Retrieved from PhantomBuster API - https://app.phantombuster.com/agents/{AGENT_ID}
         self.agent_ids = {
-            'linkedin_profile': 'linkedin-profile-scraper',  # Replace with actual agent ID
-            'linkedin_posts': 'linkedin-post-scraper',       # Replace with actual agent ID
-            'github_advanced': 'github-profile-scraper',     # Replace with actual agent ID
-            'cross_platform': 'social-cross-reference'       # Replace with actual agent ID
+            'linkedin_profile': '6111384019922294',          # LinkedIn Profile Scraper
+            'linkedin_posts': '8738318668558058',            # LinkedIn Activity Extractor
+            'github_advanced': '3490242314608122',           # GitHub Profile Scraper
+            'cross_platform': '8738318668558058'             # Using LinkedIn Activity for cross-platform (can be specialized later)
         }
+        
+        # Validate agent IDs
+        self._validate_agent_ids()
         
         # Trust scoring weights
         self.trust_weights = {
@@ -38,6 +42,16 @@ class PhantomBusterEnrichmentService:
             'content_authenticity': 0.20,
             'cross_platform_consistency': 0.20
         }
+    
+    def _validate_agent_ids(self):
+        """Validate that agent IDs are not placeholder values"""
+        placeholder_ids = ['linkedin-profile-scraper', 'linkedin-post-scraper', 
+                          'github-profile-scraper', 'social-cross-reference']
+        
+        for agent_type, agent_id in self.agent_ids.items():
+            if agent_id in placeholder_ids:
+                logger.warning(f"Using placeholder agent ID for {agent_type}: {agent_id}")
+                logger.warning(f"Please replace with actual agent ID from PhantomBuster dashboard")
     
     def get_headers(self) -> Dict[str, str]:
         """Get request headers with API key"""
@@ -240,7 +254,16 @@ class PhantomBusterEnrichmentService:
             return {}
     
     def _launch_phantom_agent(self, agent_id: str, arguments: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Launch a PhantomBuster agent and wait for results"""
+        """Launch PhantomBuster agent and wait for results"""
+        # Check if using placeholder agent ID
+        placeholder_ids = ['linkedin-profile-scraper', 'linkedin-post-scraper', 
+                          'github-profile-scraper', 'social-cross-reference']
+        
+        if agent_id in placeholder_ids:
+            logger.error(f"Cannot launch agent with placeholder ID: {agent_id}")
+            logger.error(f"Please replace with actual agent ID from PhantomBuster dashboard")
+            return None
+        
         try:
             # Launch agent
             launch_url = f"{self.base_url}/agents/launch"

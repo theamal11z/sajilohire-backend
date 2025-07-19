@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     
     # PhantomBuster configuration
     PHANTOMBUSTER_API_KEY: str = ""
-    PHANTOMBUSTER_BASE_URL: str = "https://api.phantombuster.com/api/v2"
+    PHANTOMBUSTER_BASE_URL: str = "https://api.phantombuster.com/api/v1"
     
     class Config:
         env_file = ".env"
