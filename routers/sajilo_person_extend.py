@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 from schemas import PersonExtend, PersonResponse, ErrorResponse
 from database import get_db
 from models import ExtendedPerson
-from datetime import datetime
+from services.resume_ingest import resume_processor
+from services.github_enrichment import github_enrichment_service
 import logging
 
 logger = logging.getLogger(__name__)
@@ -37,6 +38,34 @@ def extend_person(person_id: int, person_extend: PersonExtend, db: Session = Dep
         if person_extend.skills:
             skills_list = [skill.strip() for skill in person_extend.skills.split(",")]
             person.skills_tags = skills_list
+        
+        # Process resume for additional skills and insights
+        if person.resume_text:
+            resume_analysis = resume_processor.process_resume(person, person.resume_text, db)
+            logger.info(f"Resume analysis completed for person {person_id}: {len(resume_analysis.get('skills_detected', []))} additional skills found")
+        
+        # Enrich GitHub profile if provided
+        if person.github:
+            try:
+                github_data = github_enrichment_service.enrich_profile(person.github)
+                if github_data:
+                    person.github_data = github_data
+                    person.avatar_url = github_data.get('avatar_url')
+                    
+                    # Merge GitHub skills with existing skills
+                    github_skills = github_data.get('skills_detected', [])
+                    if github_skills:
+                        existing_skills = person.skills_tags or []
+                        # Combine and deduplicate skills
+                        combined_skills = list(set(existing_skills + github_skills))
+                        person.skills_tags = combined_skills[:15]  # Limit to top 15 skills
+                    
+                    logger.info(f"GitHub enrichment completed for person {person_id}: {github_data.get('username')} with {len(github_skills)} skills")
+                else:
+                    logger.warning(f"GitHub enrichment failed for person {person_id}: {person.github}")
+            except Exception as e:
+                logger.error(f"GitHub enrichment error for person {person_id}: {e}")
+                # Don't fail the entire request if GitHub enrichment fails
         
         db.commit()
         db.refresh(person)

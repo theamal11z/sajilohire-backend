@@ -42,6 +42,8 @@ class ExtendedPerson(Base):
     why_us = Column(Text, nullable=True)
     linkedin = Column(String(255), nullable=True)
     github = Column(String(255), nullable=True)
+    github_data = Column(JSON, nullable=True)  # Enriched GitHub profile data
+    avatar_url = Column(String(500), nullable=True)  # Profile image URL from GitHub
     created_ts = Column(DateTime, default=func.now())
     last_chat_ts = Column(DateTime, nullable=True)
     

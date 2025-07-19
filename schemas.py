@@ -61,6 +61,8 @@ class PersonResponse(PersonBase):
     why_us: Optional[str] = None
     linkedin: Optional[str] = None
     github: Optional[str] = None
+    github_data: Optional[Dict[str, Any]] = None
+    avatar_url: Optional[str] = None
     created_ts: datetime
     last_chat_ts: Optional[datetime] = None
     
@@ -129,10 +131,13 @@ class DashboardCandidate(BaseModel):
     person_id: int
     full_name: str
     email: str
+    avatar_url: Optional[str] = None
     fit_score: float
     fit_bucket: FitBucket
     turnover_risk: float
     flags: List[str] = []
+    github_username: Optional[str] = None
+    github_trust_score: Optional[float] = None
     applied_at: datetime
 
 
