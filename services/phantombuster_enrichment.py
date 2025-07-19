@@ -9,6 +9,7 @@ import re
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timedelta
 from config import settings
+from services.openai_cross_platform_analyzer import openai_cross_platform_analyzer
 import logging
 
 logger = logging.getLogger(__name__)
@@ -88,9 +89,9 @@ class PhantomBusterEnrichmentService:
                 github_data = self._analyze_github_advanced(github_url)
                 enrichment_data['github_analysis'] = github_data
             
-            # Cross-platform consistency analysis
+            # Cross-platform consistency analysis using OpenAI
             if linkedin_url and github_url:
-                cross_platform = self._analyze_cross_platform_consistency(linkedin_url, github_url)
+                cross_platform = self._analyze_cross_platform_with_openai(enrichment_data['linkedin_analysis'], enrichment_data['github_analysis'])
                 enrichment_data['cross_platform_analysis'] = cross_platform
             
             # Calculate comprehensive trust score
@@ -229,29 +230,34 @@ class PhantomBusterEnrichmentService:
             logger.error(f"Advanced GitHub analysis failed: {e}")
             return {}
     
-    def _analyze_cross_platform_consistency(self, linkedin_url: str, github_url: str) -> Dict[str, Any]:
-        """Analyze consistency across LinkedIn and GitHub profiles"""
+    def _analyze_cross_platform_with_openai(self, linkedin_data: Dict[str, Any], github_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Use OpenAI to analyze cross-platform consistency"""
         try:
-            consistency_score = 0.0
-            inconsistencies = []
+            # Use the dedicated OpenAI analyzer
+            analysis_result = openai_cross_platform_analyzer.analyze_cross_platform_consistency(
+                linkedin_data, github_data
+            )
             
-            # This would typically involve comparing:
-            # - Name consistency
-            # - Timeline alignment
-            # - Skills mentioned vs. repositories
-            # - Company information consistency
-            # - Professional journey coherence
+            # Generate HR insights
+            hr_insights = openai_cross_platform_analyzer.generate_hr_insights(analysis_result)
+            analysis_result['hr_insights'] = hr_insights
             
-            return {
-                'consistency_score': consistency_score,
-                'inconsistencies': inconsistencies,
-                'verification_status': 'verified' if consistency_score > 0.8 else 'needs_review',
-                'timeline_alignment': self._check_timeline_alignment(linkedin_url, github_url)
-            }
+            logger.info(f"OpenAI cross-platform analysis completed with score: {analysis_result.get('consistency_score', 0.5):.3f}")
+            return analysis_result
             
         except Exception as e:
-            logger.error(f"Cross-platform analysis failed: {e}")
-            return {}
+            logger.error(f"OpenAI cross-platform analysis failed: {e}")
+            return {
+                'consistency_score': 0.5,
+                'verification_status': 'needs_review',
+                'inconsistencies': ['Analysis failed - manual review recommended'],
+                'professional_alignment': 'Unknown',
+                'timeline_consistency': 'Unknown',
+                'detailed_analysis': f'Analysis failed: {str(e)}',
+                'red_flags': ['Automated analysis unavailable'],
+                'trust_indicators': [],
+                'hr_insights': ['Manual verification recommended due to analysis failure']
+            }
     
     def _launch_phantom_agent(self, agent_id: str, arguments: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Launch PhantomBuster agent and wait for results"""
