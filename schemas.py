@@ -153,12 +153,41 @@ class JobSkillMatch(BaseModel):
     match_score: Optional[float] = None
 
 
+# Job Profile schemas
+class CompanyProfile(BaseModel):
+    name: Optional[str] = None
+    industry: Optional[str] = None
+    location: Optional[Dict[str, Any]] = None
+    industry_insights: Optional[Dict[str, Any]] = None
+    company_size_estimate: Optional[str] = None
+    business_focus: List[str] = []
+
+
+class JobProfile(BaseModel):
+    id: int
+    title: str
+    description: Optional[str] = None
+    role_level: str
+    technical_focus: List[str] = []
+    growth_opportunities: List[str] = []
+    analyzed_skills: Optional[Dict[str, Any]] = None
+
+
+class JobProfileResponse(BaseModel):
+    job: JobProfile
+    company: CompanyProfile
+    personalization_context: Dict[str, Any] = {}
+    interview_focus: Dict[str, Any] = {}
+    cultural_indicators: List[str] = []
+
+
 class FullCandidateResponse(BaseModel):
     person: PersonResponse
     signals: Optional[CandidateSignalsResponse] = None
     score: Optional[CandidateScoreResponse] = None
     chat_history: List[ChatTurnResponse] = []
     job_skills: List[JobSkillMatch] = []
+    job_profile: Optional[JobProfileResponse] = None
     upstream_data: Optional[Dict[str, Any]] = None
 
 

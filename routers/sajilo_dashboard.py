@@ -4,12 +4,12 @@ Sajilo Dashboard router
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
 from schemas import DashboardResponse, DashboardCandidate, ErrorResponse
 from database import get_db
-from models import ExtendedPerson, CandidateScore, ExtendedJobCache
+from models import ExtendedPerson, ExtendedJobCache, CandidateScore
 from services.scoring_engine import scoring_engine
-from typing import Optional
+from services.job_profile_service import job_profile_analyzer
+from typing import List, Optional
 import logging
 
 logger = logging.getLogger(__name__)
@@ -26,6 +26,9 @@ def get_dashboard(
     """Get recruiter dashboard with ranked candidates for a job"""
     
     try:
+        # Get comprehensive job profile for enhanced dashboard
+        job_profile = job_profile_analyzer.get_comprehensive_job_profile(job_id, db)
+        
         # Verify job exists in cache
         job = db.query(ExtendedJobCache).filter(
             ExtendedJobCache.upstream_job_id == job_id

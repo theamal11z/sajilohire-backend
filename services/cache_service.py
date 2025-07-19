@@ -49,9 +49,12 @@ async def sync_jobs() -> None:
         db = SessionLocal()
         try:
             for job_data in jobs[:20]:  # Limit to first 20 for demo
-                generate_job_from_upstream(job_data, db)
+                job_cache = generate_job_from_upstream(job_data, db)
+                if job_cache:
+                    # Fetch and store job skills
+                    sync_job_skills(job_cache.upstream_job_id, db)
             db.commit()
-            logger.info(f"Synced {len(jobs[:20])} jobs")
+            logger.info(f"Synced {len(jobs[:20])} jobs with skills")
         finally:
             db.close()
     except Exception as e:
@@ -134,3 +137,20 @@ def generate_job_from_upstream(job_data: dict, db) -> ExtendedJobCache:
     
     db.add(job_cache)
     return job_cache
+
+
+def sync_job_skills(job_id: int, db) -> None:
+    """Sync job skills for a specific job"""
+    try:
+        skills_data = aqore_client.get_job_skills_by_job_id(job_id)
+        if skills_data:
+            # Update job cache with skills
+            job_cache = db.query(ExtendedJobCache).filter(
+                ExtendedJobCache.upstream_job_id == job_id
+            ).first()
+            
+            if job_cache:
+                job_cache.skills_json = skills_data
+                logger.info(f"Synced {len(skills_data)} skills for job {job_id}")
+    except Exception as e:
+        logger.warning(f"Failed to sync skills for job {job_id}: {e}")

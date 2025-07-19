@@ -35,10 +35,12 @@ def test_root():
 def test_create_person():
     """Test creating a new person"""
     print("👤 Testing person creation...")
+    import time
+    timestamp = int(time.time())
     person_data = {
         "first_name": "Alice",
         "last_name": "Johnson",
-        "email": "alice.johnson@example.com",
+        "email": f"alice.johnson.{timestamp}@example.com",
         "job_id": 183
     }
     

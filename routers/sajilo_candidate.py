@@ -8,9 +8,10 @@ from schemas import FullCandidateResponse, JobSkillMatch, ErrorResponse
 from database import get_db
 from models import ExtendedPerson, ChatTurn
 from services.scoring_engine import scoring_engine
+from services.job_profile_service import job_profile_analyzer
 from aqore_client import aqore_client
-from typing import Dict, Any, Optional
 import logging
+from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,11 @@ def get_full_candidate(person_id: int, db: Session = Depends(get_db)):
         person = db.query(ExtendedPerson).filter(ExtendedPerson.id == person_id).first()
         if not person:
             raise HTTPException(status_code=404, detail="Person not found")
+        
+        # Get job profile for enhanced context
+        job_profile = None
+        if person.job_id:
+            job_profile = job_profile_analyzer.get_comprehensive_job_profile(person.job_id, db)
         
         # Ensure scores are computed
         if not person.score:
@@ -75,6 +81,7 @@ def get_full_candidate(person_id: int, db: Session = Depends(get_db)):
             score=person.score,
             chat_history=chat_turns,
             job_skills=job_skills,
+            job_profile=job_profile,
             upstream_data=upstream_data
         )
         

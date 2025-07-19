@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 
 from config import settings
 from database import engine, Base
-from routers import health, sajilo_person, sajilo_person_extend, sajilo_chat, sajilo_dashboard, sajilo_candidate
+from routers import health, sajilo_person, sajilo_person_extend, sajilo_chat, sajilo_dashboard, sajilo_candidate, sajilo_job_profile
 from services.cache_service import sync_upstream_data
 
 
@@ -62,6 +62,7 @@ app.include_router(sajilo_person_extend.router, prefix="/sajilo", tags=["Person"
 app.include_router(sajilo_chat.router, prefix="/sajilo", tags=["Chat"])
 app.include_router(sajilo_dashboard.router, prefix="/sajilo", tags=["Dashboard"])
 app.include_router(sajilo_candidate.router, prefix="/sajilo", tags=["Candidate"])
+app.include_router(sajilo_job_profile.router, prefix="/sajilo", tags=["Job Profile"])
 
 
 @app.get("/")
