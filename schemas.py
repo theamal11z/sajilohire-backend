@@ -63,6 +63,9 @@ class PersonResponse(PersonBase):
     github: Optional[str] = None
     github_data: Optional[Dict[str, Any]] = None
     avatar_url: Optional[str] = None
+    phantombuster_data: Optional[Dict[str, Any]] = None
+    trust_score: Optional[float] = None
+    social_verification_status: Optional[str] = None
     created_ts: datetime
     last_chat_ts: Optional[datetime] = None
     
@@ -137,7 +140,11 @@ class DashboardCandidate(BaseModel):
     turnover_risk: float
     flags: List[str] = []
     github_username: Optional[str] = None
-    github_trust_score: Optional[float] = None
+    linkedin_url: Optional[str] = None
+    trust_score: Optional[float] = None
+    social_verification_status: Optional[str] = None
+    professional_insights: Optional[Dict[str, Any]] = None
+    risk_indicators: List[str] = []
     applied_at: datetime
 
 

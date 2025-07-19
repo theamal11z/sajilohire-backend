@@ -53,18 +53,37 @@ def get_dashboard(
             if not candidate.score:
                 scoring_engine.compute_score(candidate, db)
         
-        # Build dashboard candidates
+        # Build dashboard candidates with enriched data
         dashboard_candidates = []
         for person in candidates:
             if person.score and person.signals:
+                # Extract GitHub username from GitHub data
+                github_username = None
+                if person.github_data:
+                    github_username = person.github_data.get('username')
+                
+                # Extract professional insights from PhantomBuster data
+                professional_insights = None
+                risk_indicators = []
+                if person.phantombuster_data:
+                    professional_insights = person.phantombuster_data.get('professional_insights', {})
+                    risk_indicators = person.phantombuster_data.get('risk_indicators', [])
+                
                 dashboard_candidate = DashboardCandidate(
                     person_id=person.id,
                     full_name=f"{person.first_name} {person.last_name}",
                     email=person.email,
+                    avatar_url=person.avatar_url,
                     fit_score=person.score.fit_score,
                     fit_bucket=person.score.fit_bucket,
                     turnover_risk=person.signals.turnover_risk,
                     flags=person.signals.flags or [],
+                    github_username=github_username,
+                    linkedin_url=person.linkedin,
+                    trust_score=person.trust_score,
+                    social_verification_status=person.social_verification_status,
+                    professional_insights=professional_insights,
+                    risk_indicators=risk_indicators,
                     applied_at=person.created_ts
                 )
                 dashboard_candidates.append(dashboard_candidate)

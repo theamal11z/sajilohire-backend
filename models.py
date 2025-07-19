@@ -44,6 +44,9 @@ class ExtendedPerson(Base):
     github = Column(String(255), nullable=True)
     github_data = Column(JSON, nullable=True)  # Enriched GitHub profile data
     avatar_url = Column(String(500), nullable=True)  # Profile image URL from GitHub
+    phantombuster_data = Column(JSON, nullable=True)  # PhantomBuster social intelligence data
+    trust_score = Column(Float, nullable=True)  # Cross-platform trust score
+    social_verification_status = Column(String(50), nullable=True)  # verified/needs_review/unverified
     created_ts = Column(DateTime, default=func.now())
     last_chat_ts = Column(DateTime, nullable=True)
     

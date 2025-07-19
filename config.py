@@ -53,6 +53,10 @@ class Settings(BaseSettings):
         "scenario"
     ]
     
+    # PhantomBuster configuration
+    PHANTOMBUSTER_API_KEY: str = ""
+    PHANTOMBUSTER_BASE_URL: str = "https://api.phantombuster.com/api/v2"
+    
     class Config:
         env_file = ".env"
         case_sensitive = True

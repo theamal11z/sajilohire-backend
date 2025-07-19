@@ -9,6 +9,7 @@ from database import get_db
 from models import ExtendedPerson
 from services.resume_ingest import resume_processor
 from services.github_enrichment import github_enrichment_service
+from services.phantombuster_enrichment import phantombuster_enrichment_service
 import logging
 
 logger = logging.getLogger(__name__)
@@ -66,6 +67,43 @@ def extend_person(person_id: int, person_extend: PersonExtend, db: Session = Dep
             except Exception as e:
                 logger.error(f"GitHub enrichment error for person {person_id}: {e}")
                 # Don't fail the entire request if GitHub enrichment fails
+        
+        # Advanced social media enrichment with PhantomBuster
+        if person.linkedin or person.github:
+            try:
+                phantombuster_data = phantombuster_enrichment_service.enrich_candidate_profile(
+                    linkedin_url=person.linkedin,
+                    github_url=person.github
+                )
+                
+                if phantombuster_data:
+                    person.phantombuster_data = phantombuster_data
+                    person.trust_score = phantombuster_data.get('trust_score', 0.0)
+                    
+                    # Set verification status based on trust score and risk indicators
+                    trust_score = phantombuster_data.get('trust_score', 0.0)
+                    risk_indicators = phantombuster_data.get('risk_indicators', [])
+                    
+                    if trust_score >= 0.8 and not risk_indicators:
+                        person.social_verification_status = 'verified'
+                    elif trust_score >= 0.6 or len(risk_indicators) <= 1:
+                        person.social_verification_status = 'needs_review'
+                    else:
+                        person.social_verification_status = 'unverified'
+                    
+                    # Use LinkedIn profile image if no GitHub avatar
+                    linkedin_analysis = phantombuster_data.get('linkedin_analysis', {})
+                    linkedin_basic = linkedin_analysis.get('basic_info', {})
+                    if not person.avatar_url and linkedin_basic.get('profile_image_url'):
+                        person.avatar_url = linkedin_basic['profile_image_url']
+                    
+                    logger.info(f"PhantomBuster enrichment completed for person {person_id}: Trust score {trust_score:.3f}, Status: {person.social_verification_status}")
+                else:
+                    logger.warning(f"PhantomBuster enrichment returned no data for person {person_id}")
+                    
+            except Exception as e:
+                logger.error(f"PhantomBuster enrichment error for person {person_id}: {e}")
+                # Don't fail the entire request if PhantomBuster enrichment fails
         
         db.commit()
         db.refresh(person)
