@@ -42,6 +42,9 @@ class GPTChatEngine:
         
         # Get comprehensive job profile for personalization
         job_profile = job_profile_analyzer.get_comprehensive_job_profile(person.job_id, db)
+        if not job_profile:
+            logger.warning(f"No job profile found for job_id {person.job_id}, using defaults")
+            job_profile = {'job': {}, 'company': {}, 'personalization_context': {}}
         
         # Determine next intent and progress
         current_turn = len(chat_history)
@@ -220,13 +223,13 @@ Adapt your questions to the {role_level} level and focus on {technical_focus or 
         candidate_skills = person.skills_tags or []
         
         # Find intersection of candidate skills and mandatory job skills
-        matching_skills = [skill for skill in candidate_skills if skill.lower() in [ms.lower() for ms in mandatory_skills]]
+        matching_skills = [skill for skill in candidate_skills if skill and skill.lower() in [ms.lower() for ms in mandatory_skills if ms]]
         
         if matching_skills:
             return matching_skills[0]  # Probe the first matching mandatory skill
         elif candidate_skills:
             return candidate_skills[0]  # Fallback to first candidate skill
-        elif mandatory_skills:
+        elif mandatory_skills and mandatory_skills[0]:
             return mandatory_skills[0]  # Ask about required skill they didn't mention
         else:
             return "your primary technical skill"

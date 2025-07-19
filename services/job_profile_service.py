@@ -187,7 +187,7 @@ class JobProfileAnalyzer:
         for skill in skills:
             skill_name = skill.get('skillName', '').lower()
             is_mandatory = skill.get('isMandatory', False)
-            proficiency = skill.get('requiredProficiencyLevel', 'intermediate')
+            proficiency = skill.get('requiredProficiencyLevel') or 'intermediate'
             
             # Categorize by requirement type
             if is_mandatory:
@@ -405,7 +405,8 @@ class JobProfileAnalyzer:
         
         for skill in skills:
             skill_name = skill.get('skillName', '')
-            if skill.get('isMandatory') or skill.get('requiredProficiencyLevel', '').lower() in ['expert', 'advanced']:
+            proficiency_level = skill.get('requiredProficiencyLevel') or ''
+            if skill.get('isMandatory') or proficiency_level.lower() in ['expert', 'advanced']:
                 tech_skills.append(skill_name)
         
         return tech_skills[:5]  # Return top 5
