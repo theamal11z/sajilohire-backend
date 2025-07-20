@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from schemas import DashboardResponse, DashboardCandidate, ErrorResponse
 from database import get_db
 from models import ExtendedPerson, ExtendedJobCache, CandidateScore
-from services.scoring_engine import scoring_engine
+from services.ai_scoring_engine import ai_scoring_engine
 from services.job_profile_service import job_profile_analyzer
 from services.adaptive_interview_engine import adaptive_interview_engine
 from typing import List, Optional, Dict, Any
@@ -50,10 +50,10 @@ def get_dashboard(
         
         candidates = query.all()
         
-        # Ensure all candidates have scores
+        # Ensure all candidates have scores using AI
         for candidate in candidates:
             if not candidate.score:
-                scoring_engine.compute_score(candidate, db)
+                ai_scoring_engine.compute_ai_score(candidate, db)
         
         # Build enhanced dashboard candidates with comprehensive data
         dashboard_candidates = []
@@ -86,9 +86,9 @@ def get_dashboard(
             # Get comprehensive insights summary
             insights_summary = _extract_insights_summary(comprehensive_insights)
             
-            # Ensure scoring is complete
+            # Ensure scoring is complete using AI
             if not person.score:
-                scoring_engine.compute_score(person, db)
+                ai_scoring_engine.compute_ai_score(person, db)
             
             if person.score:
                 dashboard_candidate = DashboardCandidate(

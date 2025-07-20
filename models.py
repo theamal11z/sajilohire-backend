@@ -125,6 +125,8 @@ class CandidateScore(Base):
     person_local_id = Column(Integer, ForeignKey("extended_persons.id"), primary_key=True, index=True)
     fit_score = Column(Float, nullable=False)
     fit_bucket = Column(String(20), nullable=False)  # 'top', 'borderline', 'low'
+    ai_analysis_json = Column(JSON, nullable=True)  # Comprehensive AI analysis results
+    scoring_method = Column(String(20), default="ai")  # 'ai' or 'legacy'
     computed_at = Column(DateTime, default=func.now(), onupdate=func.now())
     
     # Relationships

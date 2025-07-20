@@ -172,9 +172,9 @@ def continue_adaptive_interview(person_id: int, message: ChatMessage, db: Sessio
             
             db.add(ai_turn)
             
-            # Trigger final scoring
-            from services.scoring_engine import scoring_engine
-            final_score = scoring_engine.compute_score(person, db)
+            # Trigger final AI scoring
+            from services.ai_scoring_engine import ai_scoring_engine
+            final_score = ai_scoring_engine.compute_ai_score(person, db)
             
             # Update person's last chat timestamp
             person.last_chat_ts = datetime.now()

@@ -10,7 +10,7 @@ from database import get_db
 from models import ExtendedPerson, ChatTurn, ChatTurnRole
 from services.adaptive_interview_engine import adaptive_interview_engine
 from services.comprehensive_analyzer import comprehensive_analyzer
-from services.scoring_engine import scoring_engine
+from services.ai_scoring_engine import ai_scoring_engine
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 import logging
@@ -259,9 +259,10 @@ def get_candidate_scoring_analysis(person_id: int, db: Session = Depends(get_db)
         if not person:
             raise HTTPException(status_code=404, detail="Person not found")
         
-        # Ensure scoring is complete
+        # Ensure scoring is complete using AI
         if not person.score or not person.signals:
-            scoring_engine.compute_score(person, db)
+            from services.ai_scoring_engine import ai_scoring_engine
+            ai_scoring_engine.compute_ai_score(person, db)
             db.refresh(person)
         
         if not person.score or not person.signals:
