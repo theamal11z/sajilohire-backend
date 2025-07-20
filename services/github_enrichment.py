@@ -97,7 +97,7 @@ class GitHubEnrichmentService:
                 
                 # Repository analysis
                 'repository_analysis': repo_analysis,
-                'skills_detected': repo_analysis.get('languages', []),
+                'skills_detected': list(repo_analysis.get('languages', {}).keys()),
                 'activity_score': self._calculate_activity_score(profile_data, repos_data),
                 'trust_indicators': self._extract_trust_indicators(profile_data, repos_data),
                 'technical_profile': self._build_technical_profile(repo_analysis),

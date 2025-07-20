@@ -281,8 +281,10 @@ Your goal is to have a natural, personalized interview conversation that demonst
         if linkedin_analysis:
             basic_info = linkedin_analysis.get('basic_info', {})
             professional = linkedin_analysis.get('professional_details', {})
+            network_metrics = linkedin_analysis.get('network_metrics', {})
+            credibility = linkedin_analysis.get('credibility_indicators', {})
             
-            # Current position
+            # Current position with company context
             current_position = professional.get('current_position')
             company = professional.get('company')
             if current_position and company:
@@ -290,34 +292,85 @@ Your goal is to have a natural, personalized interview conversation that demonst
             elif current_position:
                 context_lines.append(f"- Current position: {current_position}")
             
-            # Experience years
+            # Professional headline from LinkedIn
+            headline = basic_info.get('headline')
+            if headline and headline != current_position:
+                context_lines.append(f"- Professional headline: {headline}")
+            
+            # Experience years with career stage context
             exp_years = professional.get('experience_years', 0)
             if exp_years > 0:
-                context_lines.append(f"- {exp_years} years of professional experience")
+                career_stage = "senior" if exp_years >= 8 else "mid-level" if exp_years >= 4 else "early-career"
+                context_lines.append(f"- {exp_years} years of professional experience ({career_stage})")
             
-            # Location
+            # Location for remote/hybrid work discussions
             location = basic_info.get('location')
             if location:
                 context_lines.append(f"- Located in {location}")
             
-            # Network strength
-            network_metrics = linkedin_analysis.get('network_metrics', {})
+            # Enhanced network analysis
             connections = network_metrics.get('connections_count', 0)
-            if connections > 500:
-                context_lines.append("- Strong professional network (500+ connections)")
+            if connections > 1000:
+                context_lines.append("- Extensive professional network (1000+ connections) - likely industry influencer")
+            elif connections > 500:
+                context_lines.append("- Strong professional network (500+ connections) - well-connected")
             elif connections > 100:
                 context_lines.append("- Good professional network (100+ connections)")
+            
+            # Education background
+            education = professional.get('education', [])
+            if education and isinstance(education, list) and len(education) > 0:
+                top_edu = education[0] if isinstance(education[0], dict) else {}
+                school = top_edu.get('school', '')
+                degree = top_edu.get('degree', '')
+                if school or degree:
+                    context_lines.append(f"- Education: {degree} from {school}" if school and degree else f"- Education: {school or degree}")
+            
+            # Professional credibility indicators
+            recommendations = credibility.get('recommendations_received', 0)
+            skills_endorsed = credibility.get('skills_endorsed', 0)
+            if recommendations > 5:
+                context_lines.append(f"- Well-regarded professionally ({recommendations} LinkedIn recommendations)")
+            elif recommendations > 0:
+                context_lines.append(f"- Has {recommendations} LinkedIn recommendations")
+            
+            if skills_endorsed > 10:
+                context_lines.append(f"- Skills validated by peers ({skills_endorsed} endorsed skills)")
+            
+            # LinkedIn activity level
+            activity_level = credibility.get('activity_level', 'unknown')
+            if activity_level == 'high':
+                context_lines.append("- Highly active on LinkedIn - shares industry insights regularly")
+            elif activity_level == 'medium':
+                context_lines.append("- Moderately active on LinkedIn - engages with professional content")
         
-        # Professional insights from comprehensive analysis
+        # Enhanced professional insights
         prof_insights = phantombuster_data.get('professional_insights', {})
         if prof_insights:
             career_trajectory = prof_insights.get('career_trajectory')
             if career_trajectory == 'ascending':
-                context_lines.append("- Demonstrated career growth")
+                context_lines.append("- Demonstrated career growth with progressive responsibilities")
+            elif career_trajectory == 'stable':
+                context_lines.append("- Consistent career trajectory with expertise deepening")
             
             industry_expertise = prof_insights.get('industry_expertise', [])
             if industry_expertise:
-                context_lines.append(f"- Industry expertise: {', '.join(industry_expertise[:2])}")
+                context_lines.append(f"- Industry expertise: {', '.join(industry_expertise[:3])}")
+            
+            leadership_potential = prof_insights.get('leadership_potential', 'medium')
+            if leadership_potential == 'high':
+                context_lines.append("- Strong leadership indicators in professional profile")
+        
+        # LinkedIn activity insights if available
+        activity_data = linkedin_analysis.get('activity', {})
+        if activity_data:
+            thought_leadership = activity_data.get('thought_leadership', 0)
+            if thought_leadership > 0.7:
+                context_lines.append("- Demonstrates thought leadership through LinkedIn content")
+            
+            professional_tone = activity_data.get('professional_tone', 0)
+            if professional_tone > 0.8:
+                context_lines.append("- Maintains highly professional online presence")
         
         return "\n".join(context_lines) if context_lines else ""
     
@@ -416,30 +469,74 @@ Your goal is to have a natural, personalized interview conversation that demonst
         
         linkedin_analysis = phantombuster_data.get('linkedin_analysis', {})
         if linkedin_analysis:
+            basic_info = linkedin_analysis.get('basic_info', {})
             professional = linkedin_analysis.get('professional_details', {})
+            network_metrics = linkedin_analysis.get('network_metrics', {})
+            credibility = linkedin_analysis.get('credibility_indicators', {})
             
-            # Current role
+            # Current role with industry context
             current_position = professional.get('current_position')
             company = professional.get('company')
+            industry = basic_info.get('industry')
             if current_position and company:
-                insights.append(f"your experience as {current_position} at {company}")
+                if industry:
+                    insights.append(f"your role as {current_position} at {company} in the {industry} industry")
+                else:
+                    insights.append(f"your experience as {current_position} at {company}")
             
-            # Professional network
-            network_metrics = linkedin_analysis.get('network_metrics', {})
+            # Professional network with context
             connections = network_metrics.get('connections_count', 0)
-            if connections > 500:
+            if connections > 1000:
+                insights.append("your extensive professional network and industry influence")
+            elif connections > 500:
                 insights.append("your strong professional network")
             
-            # Experience level
+            # Experience level with achievement context
             exp_years = professional.get('experience_years', 0)
-            if exp_years >= 5:
+            recommendations = credibility.get('recommendations_received', 0)
+            if exp_years >= 8 and recommendations > 5:
+                insights.append(f"your {exp_years} years of senior-level experience and strong peer recognition")
+            elif exp_years >= 5:
                 insights.append(f"your {exp_years} years of professional experience")
+            
+            # Education if notable
+            education = professional.get('education', [])
+            if education and isinstance(education, list) and len(education) > 0:
+                top_edu = education[0] if isinstance(education[0], dict) else {}
+                school = top_edu.get('school', '')
+                degree = top_edu.get('degree', '')
+                # Only mention education if it's from a recognizable institution
+                notable_schools = ['MIT', 'Stanford', 'Harvard', 'Berkeley', 'Carnegie Mellon', 'Georgia Tech']
+                if any(notable in school for notable in notable_schools):
+                    insights.append(f"your {degree} background from {school}")
+            
+            # Professional headline if different from position
+            headline = basic_info.get('headline')
+            if headline and headline != current_position and len(headline) < 100:
+                insights.append(f"your professional focus on '{headline}'")  
         
-        # Professional insights
+        # Enhanced professional insights
         prof_insights = phantombuster_data.get('professional_insights', {})
-        career_trajectory = prof_insights.get('career_trajectory')
-        if career_trajectory == 'ascending':
-            insights.append("your demonstrated career growth")
+        if prof_insights:
+            career_trajectory = prof_insights.get('career_trajectory')
+            leadership_potential = prof_insights.get('leadership_potential', 'medium')
+            
+            if career_trajectory == 'ascending' and leadership_potential == 'high':
+                insights.append("your demonstrated career growth and leadership potential")
+            elif career_trajectory == 'ascending':
+                insights.append("your demonstrated career growth")
+            
+            # Industry expertise
+            industry_expertise = prof_insights.get('industry_expertise', [])
+            if len(industry_expertise) >= 2:
+                insights.append(f"your expertise in {' and '.join(industry_expertise[:2])}")
+        
+        # LinkedIn activity insights
+        activity_data = linkedin_analysis.get('activity', {})
+        if activity_data:
+            thought_leadership = activity_data.get('thought_leadership', 0)
+            if thought_leadership > 0.7:
+                insights.append("your thought leadership and industry insights on LinkedIn")
         
         return insights
     
@@ -574,18 +671,48 @@ Your goal is to have a natural, personalized interview conversation that demonst
         return None
     
     def _find_professional_reference(self, person: ExtendedPerson, skill: str) -> Optional[str]:
-        """Find professional experience reference for the skill"""
+        """Find professional experience reference for the skill with enhanced context"""
         if not person.phantombuster_data:
             return None
         
         linkedin_analysis = person.phantombuster_data.get('linkedin_analysis', {})
         if linkedin_analysis:
             professional = linkedin_analysis.get('professional_details', {})
+            credibility = linkedin_analysis.get('credibility_indicators', {})
+            
             current_position = professional.get('current_position')
             company = professional.get('company')
+            exp_years = professional.get('experience_years', 0)
             
+            # Check if skill is endorsed on LinkedIn
+            skills_list = professional.get('skills', [])
+            skill_endorsed = False
+            endorsement_count = 0
+            
+            if isinstance(skills_list, list):
+                for linkedin_skill in skills_list:
+                    if isinstance(linkedin_skill, dict):
+                        skill_name = linkedin_skill.get('name', '').lower()
+                        if skill.lower() in skill_name or skill_name in skill.lower():
+                            skill_endorsed = True
+                            endorsement_count = linkedin_skill.get('endorsements', 0)
+                            break
+            
+            # Build enhanced professional reference
             if current_position and company:
-                return f"{current_position} at {company}"
+                base_reference = f"{current_position} at {company}"
+                
+                # Add experience context
+                if exp_years >= 5:
+                    base_reference += f" (with {exp_years} years of experience)"
+                
+                # Add skill endorsement context
+                if skill_endorsed and endorsement_count > 5:
+                    base_reference += f" - skill endorsed by {endorsement_count} colleagues"
+                elif skill_endorsed:
+                    base_reference += " - skill endorsed on LinkedIn"
+                
+                return base_reference
             elif current_position:
                 return current_position
         

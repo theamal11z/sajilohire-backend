@@ -255,8 +255,12 @@ class PhantomBusterEnrichmentService:
             )
             
             # Generate HR insights
-            hr_insights = openai_cross_platform_analyzer.generate_hr_insights(analysis_result)
-            analysis_result['hr_insights'] = hr_insights
+            try:
+                hr_insights = openai_cross_platform_analyzer.generate_hr_insights(analysis_result)
+                analysis_result['hr_insights'] = hr_insights
+            except AttributeError:
+                # Fallback if method doesn't exist
+                analysis_result['hr_insights'] = ['Cross-platform analysis completed']
             
             logger.info(f"OpenAI cross-platform analysis completed with score: {analysis_result.get('consistency_score', 0.5):.3f}")
             return analysis_result

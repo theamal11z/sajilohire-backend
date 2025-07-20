@@ -46,10 +46,10 @@ class OpenAICrossPlatformAnalyzer:
         """Build comprehensive analysis prompt for OpenAI"""
         
         # Extract LinkedIn details
-        linkedin_info = self._extract_linkedin_info(linkedin_data)
+        linkedin_info = self._extract_linkedin_info(linkedin_data) or {}
         
         # Extract GitHub details  
-        github_info = self._extract_github_info(github_data)
+        github_info = self._extract_github_info(github_data) or {}
         
         prompt = f"""
 You are an expert HR analyst specializing in candidate verification. Analyze the consistency between LinkedIn and GitHub profiles.
@@ -101,6 +101,9 @@ Please respond in this JSON format:
     
     def _extract_linkedin_info(self, linkedin_data: Dict[str, Any]) -> Dict[str, Any]:
         """Extract relevant information from LinkedIn data"""
+        if not linkedin_data:
+            return {}
+            
         basic_info = linkedin_data.get('basic_info', {})
         professional = linkedin_data.get('professional_details', {})
         
@@ -121,18 +124,33 @@ Please respond in this JSON format:
         if not github_data:
             return {}
             
-        return {
-            'username': github_data.get('login'),
-            'name': github_data.get('name'),
-            'company': github_data.get('company'),
-            'location': github_data.get('location'),
-            'bio': github_data.get('bio'),
-            'public_repos': github_data.get('public_repos', 0),
-            'languages': github_data.get('languages', []),
-            'topics': github_data.get('topics', []),
-            'created_at': github_data.get('created_at'),
-            'recent_activity': github_data.get('recent_activity', 'No recent activity data')
-        }
+        # Handle different GitHub data structures
+        if 'username' in github_data:  # Our enriched GitHub data format
+            return {
+                'username': github_data.get('username'),
+                'name': github_data.get('name'),
+                'company': github_data.get('company'),
+                'location': github_data.get('location'),
+                'bio': github_data.get('bio'),
+                'public_repos': github_data.get('public_repos', 0),
+                'languages': list(github_data.get('repository_analysis', {}).get('languages', {}).keys()),
+                'topics': github_data.get('repository_analysis', {}).get('topics', []),
+                'created_at': github_data.get('created_at'),
+                'recent_activity': len(github_data.get('repository_analysis', {}).get('recent_activity', []))
+            }
+        else:  # Raw GitHub API data format
+            return {
+                'username': github_data.get('login'),
+                'name': github_data.get('name'),
+                'company': github_data.get('company'),
+                'location': github_data.get('location'),
+                'bio': github_data.get('bio'),
+                'public_repos': github_data.get('public_repos', 0),
+                'languages': github_data.get('languages', []),
+                'topics': github_data.get('topics', []),
+                'created_at': github_data.get('created_at'),
+                'recent_activity': github_data.get('recent_activity', 'No recent activity data')
+            }
     
     def _call_openai_api(self, prompt: str) -> Optional[str]:
         """Make API call to OpenAI"""
