@@ -96,6 +96,8 @@ class ChatResponse(BaseModel):
     progress: float = Field(..., ge=0.0, le=1.0)
     turn_count: int
     is_complete: bool = False
+    interview_metadata: Optional[Dict[str, Any]] = None
+    final_score: Optional[Dict[str, Any]] = None
 
 
 class ChatHistory(BaseModel):
@@ -146,6 +148,16 @@ class DashboardCandidate(BaseModel):
     professional_insights: Optional[Dict[str, Any]] = None
     risk_indicators: List[str] = []
     applied_at: datetime
+    # Enhanced fields
+    enrichment_status: Optional[str] = None
+    enrichment_progress: float = 0.0
+    interview_ready: bool = False
+    interview_status: Optional[str] = None
+    profile_completeness: float = 0.0
+    github_repos: int = 0
+    interview_stats: Dict[str, Any] = {}
+    comprehensive_insights: Dict[str, Any] = {}
+    last_activity: Optional[datetime] = None
 
 
 class DashboardResponse(BaseModel):
@@ -154,6 +166,9 @@ class DashboardResponse(BaseModel):
     candidates: List[DashboardCandidate]
     total_count: int
     high_fit_count: int
+    borderline_count: int = 0
+    analytics: Dict[str, Any] = {}
+    job_requirements_summary: Dict[str, Any] = {}
 
 
 # Full candidate profile schemas

@@ -46,7 +46,11 @@ class ExtendedPerson(Base):
     avatar_url = Column(String(500), nullable=True)  # Profile image URL from GitHub
     phantombuster_data = Column(JSON, nullable=True)  # PhantomBuster social intelligence data
     trust_score = Column(Float, nullable=True)  # Cross-platform trust score
-    social_verification_status = Column(String(50), nullable=True)  # verified/needs_review/unverified
+    social_verification_status = Column(String(50), nullable=True)  # verified/needs_review/unverified/suspicious
+    enrichment_progress = Column(JSON, nullable=True)  # Real-time enrichment progress tracking
+    comprehensive_insights = Column(JSON, nullable=True)  # Generated insights after enrichment
+    profile_completeness_score = Column(Float, nullable=True)  # Profile data quality score
+    interview_plan = Column(JSON, nullable=True)  # Adaptive interview plan
     created_ts = Column(DateTime, default=func.now())
     last_chat_ts = Column(DateTime, nullable=True)
     
