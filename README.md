@@ -1,6 +1,6 @@
 # SajiloHire Backend
 
-FastAPI backend for SajiloHire: **Next-generation AI-powered hiring platform** with deeply personalized onboarding that adapts to each company, role, and candidate. Features comprehensive job profile analysis, company-aware AI interviews, and intelligent scoring using the Aqore Hackathon API with GPT-4o-mini.
+FastAPI backend for SajiloHire: **Next-generation AI-powered hiring platform** with deeply personalized onboarding that adapts to each company, role, and candidate. Features comprehensive job profile analysis, company-aware AI interviews, intelligent scoring, and **advanced AI-powered cross-platform profile verification** using the Aqore Hackathon API with GPT-4o-mini.
 
 ## 🚀 Enhanced Features
 
@@ -18,6 +18,14 @@ FastAPI backend for SajiloHire: **Next-generation AI-powered hiring platform** w
 - **Growth Opportunity Analysis**: Career advancement potential extraction from job descriptions
 - **Company Insights**: Industry-specific values, priorities, and cultural indicators
 
+### **🔍 AI-Powered Cross-Platform Verification** *(NEW)*
+- **OpenAI Profile Analysis**: Advanced consistency checking between LinkedIn and GitHub profiles
+- **Smart Verification**: Automated detection of profile inconsistencies and red flags
+- **Trust Scoring**: AI-generated consistency scores (0.0-1.0) and professional alignment assessment
+- **HR Insights**: Actionable recommendations for recruiters based on profile analysis
+- **Timeline Verification**: Career progression coherence across platforms
+- **Fraud Detection**: Advanced authenticity checks using AI pattern recognition
+
 ### **🧠 Enhanced Scoring Engine**
 - **Precision Matching**: 40% mandatory skills + 25% key skills + 20% experience + 15% technical alignment
 - **Experience Level Assessment**: Proper junior/mid/senior/management level matching
@@ -26,10 +34,13 @@ FastAPI backend for SajiloHire: **Next-generation AI-powered hiring platform** w
 - **Fraud Detection**: Integrity checks with fake technology trap questions
 
 ### **💼 Recruiter Intelligence**
-- **Smart Dashboards**: Company and role-contextualized candidate rankings
-- **Detailed Profiles**: Rich candidate insights with job-specific analysis
+- **Smart Dashboards**: Company and role-contextualized candidate rankings with trust scores
+- **Detailed Profiles**: Rich candidate insights with job-specific analysis and verification status
 - **Skills Gap Analysis**: Visual mapping of candidate skills vs job requirements
 - **Interview Insights**: AI conversation analysis with personalization context
+- **Profile Verification**: AI-powered cross-platform consistency analysis
+- **Trust Indicators**: Automated authenticity scoring and red flag detection
+- **HR Recommendations**: AI-generated hiring advice based on comprehensive analysis
 
 ## 📋 Requirements
 
@@ -102,11 +113,20 @@ The API will be available at:
 
 ### **🏢 Job Profile Intelligence** *(NEW)*
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/sajilo/job-profile/{jobId}` | Complete job and company profile analysis |
-| `GET` | `/sajilo/job-profile/{jobId}/context` | Personalization context for AI chat |
-| `GET` | `/sajilo/job-profile/{jobId}/skills-analysis` | Detailed skills breakdown and analysis |
+|| Method | Endpoint | Description |
+||--------|----------|-------------|
+|| `GET` | `/sajilo/job-profile/{jobId}` | Complete job and company profile analysis |
+|| `GET` | `/sajilo/job-profile/{jobId}/context` | Personalization context for AI chat |
+|| `GET` | `/sajilo/job-profile/{jobId}/skills-analysis` | Detailed skills breakdown and analysis |
+
+### **🔍 AI Verification Intelligence** *(NEW)*
+
+|| Method | Endpoint | Description |
+||--------|----------|-------------|
+|| `GET` | `/sajilo/insights/{personId}/social-intelligence` | AI-powered cross-platform profile analysis |
+|| `GET` | `/sajilo/insights/{personId}/professional-summary` | Comprehensive candidate summary with verification |
+|| `GET` | `/sajilo/insights/{personId}/hr-recommendations` | AI-generated hiring recommendations |
+|| `POST` | `/sajilo/insights/{personId}/refresh-enrichment` | Refresh profile verification data |
 
 ### **⚙️ System Endpoints**
 
@@ -117,33 +137,38 @@ The API will be available at:
 
 ## 🔄 Enhanced Workflow
 
-### **1. 🎯 Personalized Candidate Application Flow**
+### **1. 🎯 Enhanced Candidate Application Flow**
 ```
 1. POST /sajilo/person → Create candidate
-2. POST /sajilo/person/{id}/extend → Add resume & job details
-3. 🧠 System analyzes job profile (company, role, skills, culture)
-4. POST /sajilo/chat/{id} → Start personalized AI interview
+2. POST /sajilo/person/{id}/extend → Add resume, LinkedIn & GitHub profiles
+3. 🔍 AI cross-platform verification (OpenAI-powered consistency analysis)
+4. 🧠 System analyzes job profile (company, role, skills, culture)
+5. POST /sajilo/chat/{id} → Start personalized AI interview
    - Questions adapt to company industry & culture
    - Technical probing matches job requirements  
    - Scenarios appropriate to role level & focus
-5. 📊 Enhanced scoring with job-specific criteria
+6. 📊 Enhanced scoring with job-specific criteria + trust verification
 ```
 
-### **2. 💼 Intelligent Recruiter Review Flow**
+### **2. 💼 Enhanced Recruiter Review Flow**
 ```
 1. GET /sajilo/job-profile/{jobId} → Understand job context & requirements
-2. GET /sajilo/dashboard/{jobId} → View candidates ranked by job-specific criteria
-3. GET /sajilo/candidate/{personId}/full → Detailed profile with job alignment
-4. Review personalized scores, cultural fit, and contextual chat analysis
+2. GET /sajilo/dashboard/{jobId} → View candidates with trust scores & verification status
+3. GET /sajilo/insights/{personId}/social-intelligence → AI profile verification analysis
+4. GET /sajilo/candidate/{personId}/full → Complete profile with job alignment & verification
+5. GET /sajilo/insights/{personId}/hr-recommendations → AI-generated hiring advice
+6. Review trust scores, consistency analysis, and verification insights
 ```
 
-### **3. 🔍 Job Profile Analysis Flow** *(NEW)*
+### **3. 🔍 AI Verification & Job Analysis Flow** *(NEW)*
 ```
 1. System fetches job + company + skills data from Aqore API
 2. Analyzes industry context, technical focus, role level
 3. Identifies mandatory vs preferred skills, cultural indicators
-4. Builds personalization context for AI conversations
-5. Creates enhanced scoring criteria specific to role
+4. 🤖 OpenAI analyzes LinkedIn + GitHub profile consistency
+5. Generates trust scores, verification status, and HR insights
+6. Builds personalization context for AI conversations
+7. Creates enhanced scoring criteria with verification factors
 ```
 
 ## 🏧 Enhanced Architecture
@@ -160,6 +185,8 @@ The API will be available at:
 - **JobProfileAnalyzer**: 🎯 *NEW* - Comprehensive job & company analysis engine
 - **ChatEngine**: 🧠 *Enhanced* - Personalized GPT-4o-mini integration with job context
 - **ScoringEngine**: 📊 *Enhanced* - Multi-factor assessment with job-specific criteria
+- **OpenAICrossPlatformAnalyzer**: 🔍 *NEW* - AI-powered profile consistency verification
+- **PhantomBusterEnrichment**: 🚀 *Enhanced* - Social media intelligence with OpenAI integration
 - **CacheService**: 🔄 *Enhanced* - Upstream data sync with skills fetching
 - **ResumeProcessor**: 📝 Smart resume parsing and skills extraction
 
@@ -183,10 +210,47 @@ enhanced_role_fit = (
 )
 ```
 
-**📦 Fit Buckets**: Top (≥75%), Borderline (≥50%), Low (<50%)
+**📾 Fit Buckets**: Top (≥75%), Borderline (≥50%), Low (<50%)
 **🔍 Skills Matching**: Precision matching of candidate skills vs job requirements
 **🎆 Experience Fit**: Role level compatibility (Junior/Mid/Senior/Management)
 **🔧 Technical Alignment**: Specialization area matching (ML, Web Dev, Data Science, etc.)
+
+## 🔍 AI-Powered Cross-Platform Verification
+
+SajiloHire now features **cutting-edge AI verification** using OpenAI GPT-4o-mini to analyze profile consistency across LinkedIn and GitHub platforms:
+
+### **🤖 OpenAI Analysis Features**
+- **Profile Consistency Scoring**: AI-generated scores (0.0-1.0) measuring profile alignment
+- **Professional Alignment Assessment**: How well GitHub activity matches LinkedIn claims
+- **Timeline Verification**: Career progression coherence across platforms
+- **Red Flag Detection**: Automated identification of concerning discrepancies
+- **Trust Indicators**: Positive verification signals for authentic profiles
+- **HR Insights Generation**: Actionable recommendations for recruiters
+
+### **📊 Verification Scoring**
+```json
+{
+  "consistency_score": 0.87,
+  "verification_status": "verified",
+  "professional_alignment": "High",
+  "timeline_consistency": "Consistent",
+  "red_flags": [],
+  "trust_indicators": [
+    "Strong alignment between claimed skills and GitHub activity",
+    "Consistent professional timeline across platforms"
+  ],
+  "hr_insights": [
+    "✅ Excellent profile consistency - high confidence in candidate authenticity"
+  ]
+}
+```
+
+### **⚙️ Verification Process**
+1. **Data Extraction**: Relevant information from LinkedIn and GitHub profiles
+2. **AI Analysis**: OpenAI compares profiles for consistency and authenticity
+3. **Scoring**: Generate trust scores and verification status
+4. **Insight Generation**: Create HR-friendly recommendations
+5. **Integration**: Incorporate verification data into candidate scoring
 
 ## 🤖 Enhanced AI Interview Process
 

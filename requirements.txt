@@ -12,4 +12,6 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 pytest==7.4.3
 httpx==0.25.2
+textblob==0.17.1
+numpy==1.24.3
 

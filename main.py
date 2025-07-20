@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 
 from config import settings
 from database import engine, Base
-from routers import health, sajilo_person, sajilo_person_extend, sajilo_chat, sajilo_dashboard, sajilo_candidate, sajilo_job_profile, sajilo_insights
+from routers import health, sajilo_person, sajilo_person_extend, sajilo_chat, sajilo_dashboard, sajilo_candidate, sajilo_job_profile, sajilo_insights, sajilo_jobs
 from services.cache_service import sync_upstream_data
 
 
@@ -57,6 +57,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health.router, tags=["Health"])
+app.include_router(sajilo_jobs.router, prefix="/sajilo", tags=["Jobs"])
 app.include_router(sajilo_person.router, prefix="/sajilo", tags=["Person"])
 app.include_router(sajilo_person_extend.router, prefix="/sajilo", tags=["Person"])
 app.include_router(sajilo_chat.router, prefix="/sajilo", tags=["Chat"])

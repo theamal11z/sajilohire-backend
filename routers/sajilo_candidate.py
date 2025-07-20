@@ -49,9 +49,9 @@ def get_full_candidate(person_id: int, db: Session = Depends(get_db)):
                 upstream_job_skills = aqore_client.get_job_skills_by_job_id(person.job_id)
                 job_skills = [
                     JobSkillMatch(
-                        skill_name=skill.get("skillName", ""),
-                        required_level=skill.get("requiredProficiencyLevel", ""),
-                        is_mandatory=skill.get("isMandatory", False),
+                        skill_name=skill.get("skillName") or "",
+                        required_level=skill.get("requiredProficiencyLevel") or "",
+                        is_mandatory=bool(skill.get("isMandatory", False)),
                         # TODO: Compute candidate skill level and match score
                         candidate_level=None,
                         match_score=None

@@ -16,6 +16,42 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+@router.post("/chat/{person_id}/start", response_model=ChatResponse, responses={404: {"model": ErrorResponse}})
+def start_conversation(person_id: int, db: Session = Depends(get_db)):
+    """Start the AI conversation with an initial greeting"""
+    
+    try:
+        # Get person
+        person = db.query(ExtendedPerson).filter(ExtendedPerson.id == person_id).first()
+        if not person:
+            raise HTTPException(status_code=404, detail="Person not found")
+        
+        # Check if conversation already started
+        existing_turns = db.query(ChatTurn).filter(
+            ChatTurn.person_local_id == person_id
+        ).count()
+        
+        if existing_turns > 0:
+            # Return existing conversation state instead of error
+            return ChatResponse(
+                agent_reply="Conversation already in progress. You can continue chatting.",
+                progress=min(existing_turns / 10.0, 1.0),
+                turn_count=existing_turns,
+                is_complete=existing_turns >= 10
+            )
+        
+        # Start conversation
+        response = chat_engine.start_conversation(person=person, db=db)
+        
+        return response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to start conversation for person {person_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to start conversation")
+
+
 @router.post("/chat/{person_id}", response_model=ChatResponse, responses={404: {"model": ErrorResponse}})
 def chat_with_ai(person_id: int, message: ChatMessage, db: Session = Depends(get_db)):
     """Handle chat interaction with AI interviewer"""

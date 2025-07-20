@@ -162,6 +162,146 @@ def test_dashboard(job_id):
     print(f"✅ Dashboard loaded: {data['total_count']} candidates for job {data['job_title']}")
 
 
+def test_job_profile(job_id):
+    """Test job profile endpoints"""
+    print("🏢 Testing job profile endpoints...")
+    
+    # Test comprehensive job profile
+    response = requests.get(f"{BASE_URL}/sajilo/job-profile/{job_id}")
+    assert response.status_code == 200
+    data = response.json()
+    assert "job" in data
+    assert "company" in data
+    assert "personalization_context" in data
+    print(f"  ✅ Comprehensive job profile: {data['job'].get('title', 'N/A')}")
+    
+    # Test personalization context
+    response = requests.get(f"{BASE_URL}/sajilo/job-profile/{job_id}/context")
+    assert response.status_code == 200
+    data = response.json()
+    assert "job_id" in data
+    assert "personalization_context" in data
+    print(f"  ✅ Personalization context loaded for job {job_id}")
+    
+    # Test skills analysis
+    response = requests.get(f"{BASE_URL}/sajilo/job-profile/{job_id}/skills-analysis")
+    assert response.status_code == 200
+    data = response.json()
+    assert "job_id" in data
+    assert "skills" in data
+    print(f"  ✅ Skills analysis: {len(data.get('skills', []))} skills identified")
+
+
+def test_insights_endpoints(person_id):
+    """Test enhanced insights endpoints"""
+    print("🔍 Testing insights endpoints...")
+    
+    # Test social intelligence
+    response = requests.get(f"{BASE_URL}/sajilo/insights/{person_id}/social-intelligence")
+    assert response.status_code == 200
+    data = response.json()
+    assert "person_id" in data
+    assert "trust_score" in data
+    assert "verification_status" in data
+    print(f"  ✅ Social intelligence - Trust Score: {data.get('trust_score', 0.0):.3f}")
+    
+    # Test professional summary
+    response = requests.get(f"{BASE_URL}/sajilo/insights/{person_id}/professional-summary")
+    assert response.status_code == 200
+    data = response.json()
+    assert "candidate_overview" in data
+    assert "trust_assessment" in data
+    assert "professional_highlights" in data
+    print(f"  ✅ Professional summary: {len(data.get('professional_highlights', []))} highlights")
+    
+    # Test HR recommendations
+    response = requests.get(f"{BASE_URL}/sajilo/insights/{person_id}/hr-recommendations")
+    assert response.status_code == 200
+    data = response.json()
+    assert "hiring_recommendation" in data
+    assert "confidence_level" in data
+    assert "key_strengths" in data
+    recommendation = data.get('hiring_recommendation', 'unknown')
+    confidence = data.get('confidence_level', 'unknown')
+    print(f"  ✅ HR recommendation: {recommendation} (confidence: {confidence})")
+    
+    return data.get('hiring_recommendation')
+
+
+def test_refresh_enrichment(person_id):
+    """Test enrichment refresh endpoint"""
+    print("🔄 Testing enrichment refresh...")
+    
+    response = requests.post(f"{BASE_URL}/sajilo/insights/{person_id}/refresh-enrichment")
+    # This might fail if no social profiles or if PhantomBuster/OpenAI is not available
+    # We'll handle both success and expected failures gracefully
+    
+    if response.status_code == 200:
+        data = response.json()
+        assert "message" in data
+        assert "trust_score" in data
+        print(f"  ✅ Enrichment refreshed - Trust Score: {data.get('trust_score', 0.0):.3f}")
+        return True
+    elif response.status_code == 400:
+        data = response.json()
+        print(f"  ⚠️ Enrichment skipped: {data.get('detail', 'No social profiles available')}")
+        return False
+    elif response.status_code == 500:
+        print(f"  ⚠️ Enrichment service unavailable (expected in test environment)")
+        return False
+    else:
+        # Unexpected error
+        assert False, f"Unexpected status code: {response.status_code}"
+
+
+def test_error_handling():
+    """Test error handling for non-existent resources"""
+    print("❌ Testing error handling...")
+    
+    # Test non-existent person
+    response = requests.get(f"{BASE_URL}/sajilo/candidate/99999/full")
+    assert response.status_code == 404
+    print("  ✅ 404 handling for non-existent person")
+    
+    # Test non-existent job profile
+    response = requests.get(f"{BASE_URL}/sajilo/job-profile/99999")
+    assert response.status_code == 404
+    print("  ✅ 404 handling for non-existent job")
+    
+    # Test invalid chat
+    response = requests.post(f"{BASE_URL}/sajilo/chat/99999", json={"message": "test"})
+    assert response.status_code == 404
+    print("  ✅ 404 handling for non-existent chat")
+    
+    # Test invalid insights
+    response = requests.get(f"{BASE_URL}/sajilo/insights/99999/social-intelligence")
+    assert response.status_code == 404
+    print("  ✅ 404 handling for non-existent insights")
+
+
+def test_api_documentation():
+    """Test API documentation endpoints"""
+    print("📚 Testing API documentation...")
+    
+    # Test OpenAPI docs
+    response = requests.get(f"{BASE_URL}/docs")
+    assert response.status_code == 200
+    print("  ✅ OpenAPI documentation accessible")
+    
+    # Test ReDoc
+    response = requests.get(f"{BASE_URL}/redoc")
+    assert response.status_code == 200
+    print("  ✅ ReDoc documentation accessible")
+    
+    # Test OpenAPI JSON schema
+    response = requests.get(f"{BASE_URL}/openapi.json")
+    assert response.status_code == 200
+    data = response.json()
+    assert "openapi" in data
+    assert "info" in data
+    print("  ✅ OpenAPI schema accessible")
+
+
 def run_all_tests():
     """Run complete test suite"""
     print("🚀 Starting SajiloHire Backend API Tests")
@@ -171,6 +311,12 @@ def run_all_tests():
         # Basic health checks
         test_health()
         test_root()
+        
+        # API documentation tests
+        test_api_documentation()
+        
+        # Error handling tests
+        test_error_handling()
         
         # Person management
         person_id = test_create_person()
@@ -183,14 +329,31 @@ def run_all_tests():
         # Analytics and scoring
         fit_bucket = test_full_candidate(person_id)
         
+        # Job profile endpoints
+        test_job_profile(183)  # Data Scientist job
+        
+        # Enhanced insights endpoints
+        hr_recommendation = test_insights_endpoints(person_id)
+        
+        # Enrichment refresh (might not work in test env)
+        enrichment_success = test_refresh_enrichment(person_id)
+        
         # Dashboard
         test_dashboard(183)  # Data Scientist job
         
         print("\n🎉 All tests passed!")
         print(f"✅ Created candidate with {fit_bucket} fit rating")
+        print(f"✅ HR recommendation: {hr_recommendation}")
         print("✅ AI interview system working correctly")
         print("✅ Scoring engine functioning properly")
+        print("✅ Job profile analysis working")
+        print("✅ Enhanced insights endpoints functional")
         print("✅ Dashboard displaying candidates accurately")
+        
+        if enrichment_success:
+            print("✅ Cross-platform enrichment system working")
+        else:
+            print("⚠️ Cross-platform enrichment skipped (external services)")
         
     except Exception as e:
         print(f"\n❌ Test failed: {e}")

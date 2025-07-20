@@ -1,8 +1,8 @@
-# 🚀 PhantomBuster Integration - Advanced Social Intelligence
+# 🚀 Enhanced Social Intelligence - PhantomBuster + OpenAI Integration
 
 ## Overview
 
-SajiloHire now features **cutting-edge social intelligence** powered by PhantomBuster APIs, providing unprecedented candidate insights through advanced LinkedIn and GitHub analysis, cross-platform verification, and comprehensive trust scoring.
+SajiloHire now features **cutting-edge social intelligence** powered by PhantomBuster APIs for data enrichment and **OpenAI GPT-4o-mini for advanced cross-platform verification**, providing unprecedented candidate insights through LinkedIn and GitHub analysis, AI-powered consistency checking, and comprehensive trust scoring.
 
 ## 🎯 Enhanced Features
 
@@ -80,19 +80,27 @@ SajiloHire now features **cutting-edge social intelligence** powered by PhantomB
 }
 ```
 
-### **3. Cross-Platform Verification**
+### **3. AI-Powered Cross-Platform Verification** *(Enhanced with OpenAI)*
 ```json
 {
   "cross_platform_analysis": {
-    "consistency_score": 0.92,
-    "inconsistencies": [],
+    "consistency_score": 0.87,
     "verification_status": "verified",
-    "timeline_alignment": {
-      "employment_github_alignment": true,
-      "skills_timeline_consistency": true,
-      "activity_correlation": 0.9,
-      "discrepancies": []
-    }
+    "professional_alignment": "High",
+    "timeline_consistency": "Consistent",
+    "detailed_analysis": "Strong alignment between LinkedIn claims and GitHub activity. Professional timeline is coherent across platforms.",
+    "inconsistencies": [],
+    "red_flags": [],
+    "trust_indicators": [
+      "Consistent professional timeline across platforms",
+      "Skills claimed on LinkedIn match repository languages",
+      "Company information aligns between profiles"
+    ],
+    "hr_insights": [
+      "✅ Excellent profile consistency - high confidence in candidate authenticity",
+      "✅ Strong alignment between claimed skills and GitHub activity"
+    ],
+    "analysis_timestamp": "2025-01-19T10:00:00Z"
   }
 }
 ```
