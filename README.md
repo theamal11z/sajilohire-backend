@@ -54,7 +54,7 @@ FastAPI backend for SajiloHire: **Next-generation AI-powered hiring platform** w
 ### 1. Clone and Install Dependencies
 
 ```bash
-cd /home/theamal/r3x/aqore/sajilohire-backend
+cd sajilohire-backend
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -75,8 +75,8 @@ Edit `.env` with your settings:
 AQORE_API_BASE=https://hackathonapi.aqore.com
 
 # GPT Configuration (Already configured for Hackathon)
-GPT_API_KEY=F0f8PjPGohraL0zjmrmWfix0ABy5iXmToB0O9fzNxGyKpP5nZkX7JQQJ99BFACHrzpqXJ3w3AAABACOGYk5Y
-GPT_API_ENDPOINT=https://aqore-hackathon-openai.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2025-01-01-preview
+GPT_API_KEY=api
+GPT_API_ENDPOINT=endpoint
 GPT_MODEL=gpt-4o-mini
 
 # Database Configuration
